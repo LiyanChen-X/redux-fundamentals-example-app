@@ -1,5 +1,5 @@
 import React from 'react'
-import { useSelector, useDispatch } from 'react-redux'
+import { useSelector } from 'react-redux'
 
 import { availableColors, capitalize } from '../filters/colors'
 import {
@@ -12,8 +12,9 @@ import {
   allTodosCompleted,
   selectTodos,
 } from '../todos/todosSlice'
+import { useAppDispatch } from '../../store'
 
-const RemainingTodos = ({ count }) => {
+const RemainingTodos = ({ count } : {count: number}) => {
   const suffix = count === 1 ? '' : 's'
 
   return (
@@ -24,9 +25,9 @@ const RemainingTodos = ({ count }) => {
   )
 }
 
-const StatusFilter = ({ value: status, onChange }) => {
+const StatusFilter = ({ value: status, onChange }: {value: StatusFilters, onChange: Function}) => {
   const renderedFilters = Object.keys(StatusFilters).map((key) => {
-    const value = StatusFilters[key]
+    const value = (StatusFilters as any)[key];
     const handleClick = () => onChange(value)
     const className = value === status ? 'selected' : ''
 
@@ -83,7 +84,7 @@ const ColorFilters = ({ value: colors, onChange }) => {
 }
 
 const Footer = () => {
-  const dispatch = useDispatch()
+  const dispatch = useAppDispatch()
 
   const todosRemaining = useSelector((state) => {
     const uncompletedTodos = selectTodos(state).filter(

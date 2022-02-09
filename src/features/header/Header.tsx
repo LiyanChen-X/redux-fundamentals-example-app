@@ -1,12 +1,12 @@
 import React, { useState } from 'react'
-import { useDispatch } from 'react-redux'
+import { useAppDispatch } from '../../store'
 
 import { saveNewTodo } from '../todos/todosSlice'
 
 const Header = () => {
   const [text, setText] = useState('')
   const [status, setStatus] = useState('idle')
-  const dispatch = useDispatch()
+  const dispatch = useAppDispatch()
 
   const handleChange = (e) => setText(e.target.value)
 

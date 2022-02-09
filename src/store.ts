@@ -2,6 +2,7 @@ import { configureStore } from '@reduxjs/toolkit'
 
 import todosReducer from './features/todos/todosSlice'
 import filtersReducer from './features/filters/filtersSlice'
+import { useDispatch } from 'react-redux'
 
 const store = configureStore({
   reducer: {
@@ -10,5 +11,10 @@ const store = configureStore({
     filters: filtersReducer,
   },
 })
+
+export type RootState = ReturnType<typeof store.getState>
+export type AppDispatch = typeof store.dispatch
+export const useAppDispatch = () => useDispatch<AppDispatch>()
+
 
 export default store

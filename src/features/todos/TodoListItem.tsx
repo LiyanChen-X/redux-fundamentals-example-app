@@ -1,5 +1,5 @@
 import React from 'react'
-import { useSelector, useDispatch } from 'react-redux'
+import { useSelector } from 'react-redux'
 
 import { ReactComponent as TimesSolid } from './times-solid.svg'
 
@@ -10,6 +10,7 @@ import {
   todoToggled,
   selectTodoById,
 } from './todosSlice'
+import { useAppDispatch } from '../../store'
 
 // Destructure `props.id`, since we just need the ID value
 const TodoListItem = ({ id }) => {
@@ -17,7 +18,7 @@ const TodoListItem = ({ id }) => {
   const todo = useSelector((state) => selectTodoById(state, id))
   const { text, completed, color } = todo
 
-  const dispatch = useDispatch()
+  const dispatch = useAppDispatch()
 
   const handleCompletedChanged = () => {
     dispatch(todoToggled(todo.id))

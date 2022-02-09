@@ -12,10 +12,11 @@
     "miragejs": "^0.1.35",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
-    "react-redux": "^7.2.1",
+    "react-redux": "^7.2.6",
     "react-scripts": "3.4.3",
     "reselect": "^4.0.0",
-    "seedrandom": "^3.0.5"
+    "seedrandom": "^3.0.5",
+    "typescript": "^3.9.10"
   },
   "scripts": {
     "start": "react-scripts start",

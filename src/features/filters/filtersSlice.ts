@@ -1,16 +1,24 @@
 import { createSlice } from '@reduxjs/toolkit'
 
-export const StatusFilters = {
-  All: 'all',
-  Active: 'active',
-  Completed: 'completed',
+export enum StatusFilters {
+  All = 'all',
+  Active = 'active',
+  Completed = 'completed',
 }
 
-const initialState = {
+
+type FilterState = {
+  status: StatusFilters,
+  colors: string[]
+}
+
+
+const initialState: FilterState = {
   status: StatusFilters.All,
   colors: [],
 }
 
+// since immer handles the state change for us, we do not need to write immutable code anymore, which saves us a lot time.
 const filtersSlice = createSlice({
   name: 'filters',
   initialState,
@@ -33,6 +41,7 @@ const filtersSlice = createSlice({
             state.colors = colors.filter(
               (existingColor) => existingColor !== color
             )
+            break
           }
           default:
             return
@@ -41,6 +50,8 @@ const filtersSlice = createSlice({
       prepare(color, changeType) {
         return {
           payload: { color, changeType },
+          meta: {},
+          error: {}
         }
       },
     },
