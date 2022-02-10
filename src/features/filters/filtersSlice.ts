@@ -7,7 +7,7 @@ export enum StatusFilters {
 }
 
 
-type FilterState = {
+interface FilterState {
   status: StatusFilters,
   colors: string[]
 }

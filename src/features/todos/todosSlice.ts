@@ -2,16 +2,39 @@ import {
   createSlice,
   createSelector,
   createAsyncThunk,
-  createEntityAdapter,
+  PayloadAction,
 } from '@reduxjs/toolkit'
 import { client } from '../../api/client'
+import { RootState } from '../../store'
 import { StatusFilters } from '../filters/filtersSlice'
 
-const todosAdapter = createEntityAdapter()
 
-const initialState = todosAdapter.getInitialState({
-  status: 'idle',
-})
+export interface TodoItem {
+  id: number,
+  text: string, 
+  completed: boolean, 
+  color: string
+}
+
+export enum LoadingStatus {
+  Idle = "idle",
+  Loading = "loading"
+} 
+
+// maybe we should use an object to store id & entities
+interface TodoState {
+  entities: TodoItem[],
+  loadingState: LoadingStatus 
+}
+
+
+
+const initialState: TodoState = {
+  loadingState: LoadingStatus.Idle,
+  entities: []
+}
+
+
 
 // Thunk functions
 export const fetchTodos = createAsyncThunk('todos/fetchTodos', async () => {
@@ -21,7 +44,7 @@ export const fetchTodos = createAsyncThunk('todos/fetchTodos', async () => {
 
 export const saveNewTodo = createAsyncThunk(
   'todos/saveNewTodo',
-  async (text) => {
+  async (text: string) => {
     const initialTodo = { text }
     const response = await client.post('/fakeApi/todos', { todo: initialTodo })
     return response.todo
@@ -32,15 +55,21 @@ const todosSlice = createSlice({
   name: 'todos',
   initialState,
   reducers: {
-    todoToggled(state, action) {
+    todoToggled(state, action: PayloadAction<number>) {
       const todoId = action.payload
-      const todo = state.entities[todoId]
-      todo.completed = !todo.completed
+      const selectedTodo = state.entities.find((todo) => todo.id === todoId);
+      if (selectedTodo) {
+        selectedTodo.completed = !selectedTodo.completed
+      }
     },
     todoColorSelected: {
-      reducer(state, action) {
+      reducer(state, action: PayloadAction<{
+        todoId: number, 
+        color: string
+      }>) {
         const { color, todoId } = action.payload
-        state.entities[todoId].color = color
+        const selectedTodo = state.entities.find((todo) => todo.id === todoId);
+        selectedTodo!.color = color
       },
       prepare(todoId, color) {
         return {
@@ -48,36 +77,44 @@ const todosSlice = createSlice({
         }
       },
     },
-    todoDeleted: todosAdapter.removeOne,
-    allTodosCompleted(state, action) {
-      Object.values(state.entities).forEach((todo) => {
+    todoDeleted: {
+      reducer(state, action: PayloadAction<{todoId: number}>) {
+        const {todoId} = action.payload;
+        state.entities = state.entities.filter((todo) => todo.id !== todoId);
+      },
+      prepare(todoId: number) {
+        return {
+          payload: {todoId}
+        }
+      }
+    },
+    allTodosCompleted(state) {
+      state.entities.forEach((todo) => {
         todo.completed = true
       })
     },
-    completedTodosCleared(state, action) {
-      const completedIds = Object.values(state.entities)
-        .filter((todo) => todo.completed)
-        .map((todo) => todo.id)
-      todosAdapter.removeMany(state, completedIds)
+    completedTodosCleared(state) {
+      state.entities = state.entities.filter((todo) => !todo.completed);
     },
   },
   extraReducers: (builder) => {
     builder
-      .addCase(fetchTodos.pending, (state, action) => {
-        state.status = 'loading'
+      .addCase(fetchTodos.pending, (state ) => {
+        state.loadingState = LoadingStatus.Loading
       })
       .addCase(fetchTodos.fulfilled, (state, action) => {
-        todosAdapter.setAll(state, action.payload)
-        state.status = 'idle'
+        state.entities = action.payload;
+        state.loadingState = LoadingStatus.Idle
       })
-      .addCase(saveNewTodo.fulfilled, todosAdapter.addOne)
+      .addCase(saveNewTodo.fulfilled, (state, action) => {
+        state.entities.push(action.payload);
+      })
   },
 })
 
 export const {
   allTodosCompleted,
   completedTodosCleared,
-  todoAdded,
   todoColorSelected,
   todoDeleted,
   todoToggled,
@@ -85,10 +122,10 @@ export const {
 
 export default todosSlice.reducer
 
-export const {
-  selectAll: selectTodos,
-  selectById: selectTodoById,
-} = todosAdapter.getSelectors((state) => state.todos)
+
+export const selectTodos = (state: RootState) => state.todos.entities;
+
+export const selectTodoById = (state: RootState, id: number) => state.todos.entities.find((todo) => todo.id === id) as TodoItem
 
 export const selectTodoIds = createSelector(
   // First, pass one or more "input selector" functions:
@@ -102,7 +139,7 @@ export const selectFilteredTodos = createSelector(
   // First input selector: all todos
   selectTodos,
   // Second input selector: all filter values
-  (state) => state.filters,
+  (state: RootState) => state.filters,
   // Output selector: receives both values
   (todos, filters) => {
     const { status, colors } = filters
@@ -128,3 +165,5 @@ export const selectFilteredTodoIds = createSelector(
   // And derive data in the output selector
   (filteredTodos) => filteredTodos.map((todo) => todo.id)
 )
+
+// see doc: https://blog.isquaredsoftware.com/2017/12/idiomatic-redux-using-reselect-selectors/

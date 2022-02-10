@@ -1,29 +1,29 @@
-import React, { useState } from 'react'
+import React, { KeyboardEvent, useState } from 'react'
 import { useAppDispatch } from '../../store'
-
+import { LoadingStatus } from "../todos/todosSlice"
 import { saveNewTodo } from '../todos/todosSlice'
 
 const Header = () => {
   const [text, setText] = useState('')
-  const [status, setStatus] = useState('idle')
+  const [status, setStatus] = useState(LoadingStatus.Idle)
   const dispatch = useAppDispatch()
 
-  const handleChange = (e) => setText(e.target.value)
+  const handleChange = (e : React.ChangeEvent<HTMLInputElement>) => setText(e.currentTarget.value)
 
-  const handleKeyDown = async (e) => {
+  const handleKeyDown = async (e: KeyboardEvent<HTMLInputElement>) => {
     // If the user pressed the Enter key:
     const trimmedText = text.trim()
-    if (e.which === 13 && trimmedText) {
+    if (e.key === "Enter" && trimmedText) {
       // Create and dispatch the thunk function itself
-      setStatus('loading')
+      setStatus(LoadingStatus.Loading)
       await dispatch(saveNewTodo(trimmedText))
       // And clear out the text input
       setText('')
-      setStatus('idle')
+      setStatus(LoadingStatus.Idle)
     }
   }
 
-  let isLoading = status === 'loading'
+  let isLoading = status === LoadingStatus.Loading
   let placeholder = isLoading ? '' : 'What needs to be done?'
   let loader = isLoading ? <div className="loader" /> : null
 
