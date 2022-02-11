@@ -1,6 +1,7 @@
 import { TimerCallBack, TimerCallBackMeta } from "./types";
 import { baseTimeoutInterval } from "./baseSetTimeoutInterval"
 
+// batched version of set time out interval
 export class TimeoutInterval {
     cbs: TimerCallBackMeta[] = []
 
