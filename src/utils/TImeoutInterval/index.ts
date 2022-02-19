@@ -7,8 +7,9 @@ const taskMap = new Map<number, TimeoutInterval>();
 
 export const setTimeoutInterval = (cb: TimerCallBack, delay: number) => {
     const timeoutInterval = new TimeoutInterval(delay);
+    const timerId = timeoutInterval.add(cb);
     taskMap.set(TimeoutInterval.instanceId, timeoutInterval);
-    return timeoutInterval.add(cb);
+    return timerId
 }
 
 export const clearTimeoutInterval = (id: number) => {

@@ -1,5 +1,5 @@
-import { FC, memo, useEffect, useState } from "react";
-import { CountDown } from "./countDown";
+import { useEffect, useState } from "react";
+import { CountDown } from "./CountDown";
 import { CountDownManager } from "./countDownManager";
 import { CountDownDateMeta, CountDownOpt } from "./types";
 
@@ -25,10 +25,10 @@ export const getCountDownInstance = (opt: CountDownInstanceOpt) => {
 interface CountDownHookOpt {
     endTime: number, 
     onEnd?(): void, 
-    server: boolean
+    server?: boolean
 }
 
-export function useCountDown({endTime, onEnd, server = false}: CountDownHookOpt) {
+export function useCountDown({endTime, onEnd, server = false}: CountDownHookOpt): CountDownDateMeta {
     const [dateMeta, setDateMeta] = useState<CountDownDateMeta>({
         d: 0, 
         h: 0, 
@@ -55,15 +55,4 @@ export function useCountDown({endTime, onEnd, server = false}: CountDownHookOpt)
 }
 
 
-interface CountDownProps {
-    endTime: number, 
-    onEnd(): void
-    render(date: CountDownDateMeta): JSX.Element
-    server?: boolean
-}
 
-
-export const CountDownComponent: FC<CountDownProps> = memo(({endTime, onEnd, render, server}) => {
-    const time = useCountDown({ endTime: new Date(endTime).getTime(), onEnd, server })
-    return <>{render(time)}</>
-})

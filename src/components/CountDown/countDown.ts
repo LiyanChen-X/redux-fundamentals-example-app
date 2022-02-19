@@ -32,7 +32,7 @@ export class CountDown {
             this.opt.onStep?.(this.calculateTime(this.opt.endTime - this.now))
         }, this.opt.interval)
 
-        this.opt.manager.add(this);
+        this.opt.manager!.add(this);
     }
 
 

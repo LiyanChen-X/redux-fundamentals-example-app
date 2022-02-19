@@ -1,3 +1,3 @@
-export function merge(...args) {
+export function merge(...args: any[]) {
     return Object.assign({}, ...args)
 }
